@@ -1,41 +1,97 @@
-import React from 'react'
-import { View, Text, Button } from 'react-native'
-import { API_URL, API_ACCESS_TOKEN } from '@env' // Ditambahkan
+import React, { useState, useEffect } from 'react';
+import { Text, View, StyleSheet, ScrollView, Image } from 'react-native';
+import { API_ACCESS_TOKEN } from '@env';
+import MovieList from '../components/movies/MovieList'; // Import the MovieList component
 
-const MovieDetail = ({ navigation }: any): any => {
-  const fetchData = (): void => {
-    if (API_URL == null || API_ACCESS_TOKEN.length == null) {
-      throw new Error('ENV not found')
-    }
+const MovieDetail = ({ route }: any): JSX.Element => {
+  const { id } = route.params;
+  const [movie, setMovie] = useState<any>(null);
 
+  useEffect(() => {
+    fetchMovieDetails();
+  }, []);
+
+  const fetchMovieDetails = (): void => {
+    const url = `https://api.themoviedb.org/3/movie/${id}`;
     const options = {
       method: 'GET',
       headers: {
         accept: 'application/json',
         Authorization: `Bearer ${API_ACCESS_TOKEN}`,
       },
-    }
+    };
 
-    fetch(API_URL, options)
-      .then((response) => response.json())
+    fetch(url, options)
+      .then(async (response) => await response.json())
       .then((response) => {
-        console.log(response)
+        setMovie(response);
       })
-      .catch((err) => {
-        console.error(err)
-      })
-  }
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Movie Detail Page</Text>
-      <Button
-        title="Fetch Data"
-        onPress={() => {
-          fetchData()
-        }}
-      />
-    </View>
-  )
-}
+      .catch((errorResponse) => {
+        console.log(errorResponse);
+      });
+  };
 
-export default MovieDetail
+  if (!movie) {
+    return (
+      <View style={styles.loaderContainer}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView>
+      <View style={styles.container}>
+        <Image
+          source={{ uri: `https://image.tmdb.org/t/p/w500${movie.poster_path}` }}
+          style={styles.poster}
+        />
+        <Text style={styles.title}>{movie.title}</Text>
+        <Text style={styles.overview}>{movie.overview}</Text>
+        <Text style={styles.detail}>Release Date: {movie.release_date}</Text>
+        <Text style={styles.detail}>Rating: {movie.vote_average}</Text>
+      </View>
+      <MovieList
+        title="Recommendations"
+        path={`movie/${id}/recommendations`}
+        coverType="poster"
+      />
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    display: 'flex',
+    alignItems: 'center',
+    marginTop: 32,
+    paddingHorizontal: 16,
+  },
+  poster: {
+    width: 300,
+    height: 450,
+    marginBottom: 16,
+  },
+  title: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  overview: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  detail: {
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
+
+export default MovieDetail;
