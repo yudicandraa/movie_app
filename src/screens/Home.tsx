@@ -13,7 +13,7 @@ export default function Home(): JSX.Element {
   const navigation = useNavigation<HomeScreenNavigationProp>();
 
   return (
-    <View>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
       <Text>Home</Text>
       <Button
         title="Go to Movie Detail"
