@@ -1,18 +1,41 @@
-import React from 'react';
-import { View, Text } from 'react-native';
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { RootStackParamList } from '../navigations/HomeStackNavigation';
+import React from 'react'
+import { View, Text, Button } from 'react-native'
+import { API_URL, API_ACCESS_TOKEN } from '@env' // Ditambahkan
 
-type MovieDetailRouteProp = RouteProp<RootStackParamList, 'MovieDetail'>;
+const MovieDetail = ({ navigation }: any): any => {
+  const fetchData = (): void => {
+    if (API_URL == null || API_ACCESS_TOKEN.length == null) {
+      throw new Error('ENV not found')
+    }
 
-export default function MovieDetail(): JSX.Element {
-  const route = useRoute<MovieDetailRouteProp>();
-  const { movieId } = route.params;
+    const options = {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        Authorization: `Bearer ${API_ACCESS_TOKEN}`,
+      },
+    }
 
+    fetch(API_URL, options)
+      .then((response) => response.json())
+      .then((response) => {
+        console.log(response)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+  }
   return (
-    <View>
-      <Text>Movie Detail</Text>
-      <Text>Movie ID: {movieId}</Text>
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text>Movie Detail Page</Text>
+      <Button
+        title="Fetch Data"
+        onPress={() => {
+          fetchData()
+        }}
+      />
     </View>
-  );
+  )
 }
+
+export default MovieDetail
