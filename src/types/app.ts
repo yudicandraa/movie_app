@@ -45,3 +45,10 @@ export interface MovieListProps {
     size: { width: number; height: number }
     coverType: 'poster' | 'backdrop'
   }
+
+  // src/types/app.ts
+export type Movie = {
+  id: number;
+  title: string;
+  // Tambahkan properti lain yang dibutuhkan dari objek Movie jika diperlukan
+};
